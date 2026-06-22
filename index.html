@@ -309,30 +309,27 @@
             }, 3000);
         };
 
-        // 3. Initialize Firebase Application
-        try {
-            // Setup Configuration (Handled securely by the platform)
-            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-            appId = typeof __app_id !== 'undefined' ? __app_id : 'teched-local-app';
-            
-            if (Object.keys(firebaseConfig).length > 0) {
-                const app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
+        // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-                // Start Authentication Process IMMEDIATELY
-                const initAuth = async () => {
-                    try {
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                        } else {
-                            await signInAnonymously(auth);
-                        }
-                    } catch (authErr) {
-                        console.error("Auth process failed:", authErr);
-                        window.showToast('Ошибка подключения', 'error');
-                    }
-                };
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAHWDiuc9DGawTvbmCwmCg6JbKnwiOE53c",
+  authDomain: "teched-platform.firebaseapp.com",
+  projectId: "teched-platform",
+  storageBucket: "teched-platform.firebasestorage.app",
+  messagingSenderId: "687944573637",
+  appId: "1:687944573637:web:156ccd6354a658124c86ac",
+  measurementId: "G-0Y8EG64LH5"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
                 initAuth();
 
                 // Listen for Authentication State
