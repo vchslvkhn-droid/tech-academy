@@ -314,17 +314,16 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // === СЮДА ВСТАВЛЯЮТСЯ ТОЛЬКО СТРОЧКИ С КЛЮЧАМИ ИЗ КОНСОЛИ FIREBASE ===
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
-            apiKey: "AIzaSyAHWDiuc9DGawTvbmCwmCg6JbKnwiOE53c",
-            authDomain: "teched-platform.firebaseapp.com",
-            projectId: "teched-platform",
-            storageBucket: "teched-platform.firebasestorage.app",
-            messagingSenderId: "687944573637",
-            appId: "1:687944573637:web:156ccd6354a658124c86ac",
-            measurementId: "G-0Y8EG64LH5"
+        apiKey: "AIzaSyAHWDiuc9DGawTvbmCwmCg6JbKnwiOE53c",
+        authDomain: "teched-platform.firebaseapp.com",
+        projectId: "teched-platform",
+        storageBucket: "teched-platform.firebasestorage.app",
+        messagingSenderId: "687944573637",
+        appId: "1:687944573637:web:156ccd6354a658124c86ac",
+        measurementId: "G-0Y8EG64LH5"
         };
-        // ===================================================================
 
         // ВСЁ ЧТО ИДЕТ НИЖЕ — ДОЛЖНО ОСТАТЬСЯ! НЕ УДАЛЯЙТЕ ЭТО:
         let db, auth, currentUser;
