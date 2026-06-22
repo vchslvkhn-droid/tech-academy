@@ -4,458 +4,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TechEd | IT Learning Platform (Cloud Sync)</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        gray: {
-                            850: '#1f2937',
-                            900: '#111827',
-                            950: '#030712',
-                        },
-                        cyan: {
-                            400: '#22d3ee',
-                            500: '#06b6d4',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #030712; color: #f3f4f6; }
-        .font-tech { font-family: 'JetBrains Mono', monospace; }
-        
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #111827; }
-        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
-        
-        .glass-panel {
-            background: rgba(31, 41, 55, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(55, 65, 81, 0.5);
-        }
-
         .view-section { display: none; }
-        .view-section.active { display: block; animation: fadeIn 0.3s ease-in-out; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .toast-visible {
-            transform: translateY(0) !important;
-            opacity: 1 !important;
-        }
+        .view-section.active { display: block; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col relative">
-
-    <!-- Toast Notification System -->
-    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 z-[100] bg-gray-800 text-white px-5 py-4 rounded-xl shadow-2xl border border-gray-700 flex items-center gap-3">
-        <i id="toast-icon" class="fa-solid fa-circle-check text-green-400 text-xl"></i>
-        <span id="toast-message" class="font-medium">Действие выполнено</span>
-    </div>
-
-    <!-- Top Navigation -->
-    <header class="glass-panel sticky top-0 z-50 border-b border-gray-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-cloud text-cyan-400 text-2xl animate-pulse"></i>
-                <span class="font-tech text-xl font-bold tracking-tight text-white">Tech<span class="text-cyan-400">Ed</span>.</span>
-            </div>
-            
-            <!-- Role Switcher -->
-            <div class="flex items-center gap-2 sm:gap-4 bg-gray-900 rounded-lg p-1 border border-gray-700">
-                <button onclick="window.switchRole('admin')" id="nav-admin" class="px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded-md text-gray-400 hover:text-white transition-colors">Админ</button>
-                <button onclick="window.switchRole('student')" id="nav-student" class="px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded-md text-gray-400 hover:text-white transition-colors">Ученик</button>
-                <button onclick="window.switchRole('watcher')" id="nav-watcher" class="px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded-md text-gray-400 hover:text-white transition-colors hidden sm:block">Наблюдатель</button>
-            </div>
-
-            <div class="flex items-center gap-3">
-                <div class="text-right hidden md:block">
-                    <div id="user-name" class="text-sm font-medium text-white">Загрузка...</div>
-                    <div id="user-role" class="text-xs text-cyan-400 font-tech">connecting...</div>
-                </div>
-                <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center border-2 border-gray-800 shadow-lg">
-                    <i class="fa-solid fa-user text-xs text-white"></i>
-                </div>
-            </div>
+<body class="min-h-screen">
+    <header class="border-b border-gray-800 p-4 flex justify-between items-center">
+        <div class="font-bold text-xl text-white">Tech<span class="text-cyan-400">Ed</span></div>
+        <div class="space-x-4">
+            <button onclick="window.switchRole('admin')" class="text-cyan-400">Админ</button>
+            <button onclick="window.switchRole('student')" class="text-gray-400">Ученик</button>
         </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
-
-        <!-- ========================================== -->
-        <!-- ADMIN VIEW (КОНСТРУКТОР КУРСОВ И ДОСТУПЫ)  -->
-        <!-- ========================================== -->
+    <main class="max-w-4xl mx-auto p-6">
+        <!-- АДМИН ПАНЕЛЬ -->
         <section id="view-admin" class="view-section active">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
-                <div>
-                    <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">Управление курсами</h1>
-                    <p class="text-gray-400 text-sm sm:text-base">Создавайте курсы, модули и сохраняйте их в облако.</p>
-                </div>
-                <button onclick="window.publishCourse()" class="w-full sm:w-auto bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold py-2.5 px-5 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg shadow-cyan-500/20">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> Опубликовать курс
-                </button>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Course Settings -->
-                <div class="col-span-1 space-y-6">
-                    <div class="glass-panel p-6 rounded-xl">
-                        <h2 class="text-xl font-semibold mb-4 border-b border-gray-700 pb-2">Настройки курса</h2>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm text-gray-400 mb-1">Название курса</label>
-                                <input type="text" id="input-course-title" value="Основы Python" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-2.5 text-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 focus:outline-none font-tech text-sm transition-all">
-                            </div>
-                            <div>
-                                <label class="block text-sm text-gray-400 mb-1">Краткое описание</label>
-                                <textarea id="input-course-desc" rows="3" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-2.5 text-white focus:border-cyan-500 focus:outline-none text-sm resize-none">Базовый курс по программированию на языке Python.</textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="glass-panel p-6 rounded-xl border-l-4 border-l-cyan-500 opacity-70">
-                        <h2 class="text-xl font-semibold mb-4 border-b border-gray-700 pb-2 flex items-center gap-2">
-                            Выдача доступов <span class="text-[10px] bg-gray-800 px-2 py-0.5 rounded text-gray-400 font-tech border border-gray-700">Скоро</span>
-                        </h2>
-                        <div class="space-y-4">
-                            <div>
-                                <input type="email" placeholder="student@example.com" disabled class="w-full bg-gray-900/50 border border-gray-700/50 rounded-lg p-2 text-gray-500 cursor-not-allowed">
-                            </div>
-                            <button disabled class="w-full bg-gray-800 text-gray-500 font-medium py-2 rounded-lg border border-gray-700 cursor-not-allowed">
-                                Выдать доступ
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Course Builder -->
-                <div class="col-span-1 lg:col-span-2">
-                    <div class="glass-panel p-6 rounded-xl min-h-[500px]">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-xl font-semibold">Конструктор модулей</h2>
-                            <button onclick="window.addBlock()" class="text-cyan-400 text-sm hover:underline"><i class="fa-solid fa-plus"></i> Добавить блок</button>
-                        </div>
-
-                        <!-- Контейнер для блоков -->
-                        <div id="blocks-container" class="space-y-4">
-                            <!-- Блоки будут появляться здесь -->
-                        </div>
-
-                        <div class="text-center p-8 border-2 border-dashed border-gray-800 rounded-xl mt-6">
-                            <i class="fa-solid fa-layer-group text-3xl text-gray-700 mb-3"></i>
-                            <p class="text-gray-500 text-sm">Нажмите «Добавить блок», чтобы создать программу курса.<br>При публикации курса все модули сохранятся в облако.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <h1 class="text-2xl font-bold mb-6">Создать курс</h1>
+            <input type="text" id="course-title" placeholder="Название курса" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg mb-4 text-white">
+            <div id="blocks-container" class="space-y-4 mb-4"></div>
+            <button onclick="window.addBlock()" class="text-cyan-400">+ Добавить блок с видео</button>
+            <button onclick="window.publishCourse()" class="block w-full bg-cyan-500 text-gray-900 font-bold py-3 rounded-lg mt-6">Опубликовать курс</button>
         </section>
 
-        <!-- ========================================== -->
-        <!-- STUDENT VIEW (ДАШБОРД УЧЕНИКА)             -->
-        <!-- ========================================== -->
+        <!-- СТУДЕНТ ПАНЕЛЬ -->
         <section id="view-student" class="view-section">
-            <div class="mb-8">
-                <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">Привет, Студент! 👋</h1>
-                <p class="text-gray-400">Ваши курсы синхронизированы с облаком. Продолжайте обучение.</p>
-            </div>
-
-            <!-- Stats & Progress -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="glass-panel p-6 rounded-xl flex items-center gap-4 border-t-4 border-t-cyan-400">
-                    <div class="bg-cyan-500/10 p-4 rounded-full text-cyan-400 text-2xl">
-                        <i class="fa-solid fa-fire"></i>
-                    </div>
-                    <div>
-                        <div class="text-gray-400 text-sm">Дней подряд</div>
-                        <div class="text-2xl font-bold font-tech text-white">3</div>
-                    </div>
-                </div>
-                
-                <div class="glass-panel p-6 rounded-xl flex items-center gap-4 border-t-4 border-t-green-400">
-                    <div class="bg-green-500/10 p-4 rounded-full text-green-400 text-2xl">
-                        <i class="fa-solid fa-chart-pie"></i>
-                    </div>
-                    <div class="w-full">
-                        <div class="flex justify-between items-end mb-1">
-                            <span class="text-gray-400 text-sm">Успеваемость</span>
-                            <span class="text-green-400 font-bold font-tech">100%</span>
-                        </div>
-                        <div class="w-full bg-gray-800 rounded-full h-2">
-                            <div class="bg-green-400 h-2 rounded-full" style="width: 100%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Active Courses from Database -->
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-white">Доступные курсы (из Базы Данных)</h2>
-                <div class="flex items-center gap-2 text-xs text-green-400 font-tech">
-                    <span class="relative flex h-3 w-3">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                    </span>
-                    Live Sync
-                </div>
-            </div>
-            
-            <div id="student-courses-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Courses will be injected here by JS -->
-                <div class="glass-panel p-8 rounded-xl text-center col-span-full border-dashed border-2 border-gray-700">
-                    <i class="fa-solid fa-spinner fa-spin text-3xl text-cyan-500 mb-4"></i>
-                    <p class="text-gray-400">Загрузка курсов из базы данных...</p>
-                </div>
-            </div>
+            <h1 class="text-2xl font-bold mb-6">Ваши курсы</h1>
+            <div id="student-courses" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
         </section>
-
-        <!-- ========================================== -->
-        <!-- WATCHER VIEW (ДАШБОРД НАБЛЮДАТЕЛЯ)         -->
-        <!-- ========================================== -->
-        <section id="view-watcher" class="view-section">
-            <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
-                <div>
-                    <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">Кабинет куратора</h1>
-                    <p class="text-gray-400">Контроль успеваемости прикрепленных студентов.</p>
-                </div>
-                <div class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 flex items-center gap-3">
-                    <span class="text-sm text-gray-400">Студент:</span>
-                    <div class="flex items-center gap-2 text-white">
-                        <div class="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs">С</div>
-                        <span class="font-medium text-sm">Студент (Live)</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-panel p-8 text-center rounded-xl border-dashed border-2 border-gray-700">
-                <i class="fa-solid fa-chart-line text-4xl text-gray-600 mb-4"></i>
-                <h3 class="text-xl text-white font-medium mb-2">Аналитика в реальном времени</h3>
-                <p class="text-gray-400 max-w-md mx-auto">Здесь будет отображаться статистика прохождения курсов. Перейдите в кабинет Администратора, опубликуйте курс, и он появится в базе.</p>
-            </div>
-        </section>
-
     </main>
 
-    <!-- FIREBASE & APP LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // =====================================================================
-        // ↓↓↓ ВСТАВЬТЕ ВАШИ КЛЮЧИ ИЗ КОНСОЛИ FIREBASE ВОТ В ЭТОТ БЛОК ↓↓↓
-        // =====================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyAHWDiuc9DGawTvbmCwmCg6JbKnwiOE53c",
-            authDomain: "teched-platform.firebaseapp.com",
-            projectId: "teched-platform",
-            storageBucket: "teched-platform.firebasestorage.app",
-            messagingSenderId: "687944573637",
-            appId: "1:687944573637:web:156ccd6354a658124c86ac",
-            measurementId: "G-0Y8EG64LH5"
-        };
-        // =====================================================================
-
-        let db, auth, currentUser;
-        let globalCourses = []; 
-
-        const app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-
-        window.showToast = function(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toast-message');
-            const toastIcon = document.getElementById('toast-icon');
-            toastMessage.innerText = message;
-            if (type === 'success') {
-                toastIcon.className = 'fa-solid fa-circle-check text-green-400 text-xl';
-                toast.classList.replace('border-red-700', 'border-gray-700');
-            } else {
-                toastIcon.className = 'fa-solid fa-circle-xmark text-red-500 text-xl';
-                toast.classList.replace('border-gray-700', 'border-red-700');
-            }
-            toast.classList.add('toast-visible');
-            setTimeout(() => { toast.classList.remove('toast-visible'); }, 3000);
+            projectId: "teched-platform"
         };
 
-        // Подключение к Firebase с улучшенной обработкой сетевой ошибки
-        signInAnonymously(auth).catch(err => {
-            console.error("Firebase Auth Error:", err);
-            if (err.code === 'auth/network-request-failed') {
-                window.showToast('Ошибка сети! Откройте сайт по ссылке Vercel (не двойным кликом по файлу) или отключите AdBlock.', 'error');
-            } else {
-                window.showToast('Ошибка авторизации. Проверьте настройки в Firebase!', 'error');
-            }
-        });
+        const db = getFirestore(initializeApp(firebaseConfig));
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                const roleEl = document.getElementById('user-role');
-                roleEl.innerText = 'online';
-                roleEl.classList.remove('text-cyan-400');
-                roleEl.classList.add('text-green-400');
-                
-                setupDatabaseListeners();
-            }
-        });
-
-        function setupDatabaseListeners() {
-            const coursesCollectionRef = collection(db, 'courses');
-            onSnapshot(coursesCollectionRef, (snapshot) => {
-                globalCourses = [];
-                snapshot.forEach((doc) => {
-                    globalCourses.push({ id: doc.id, ...doc.data() });
-                });
-                renderCoursesUI();
-            }, (error) => {
-                console.error("DB Snapshot Error:", error);
-                window.showToast('Ошибка чтения базы данных', 'error');
-            });
-        }
-
-        // --- НОВАЯ ФУНКЦИЯ: Добавление блоков ---
-        window.addBlock = function() {
-            const container = document.getElementById('blocks-container');
-            const blockCount = container.children.length + 1;
-            
-            const blockHtml = `
-                <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow-sm block-item flex justify-between items-center group">
-                    <div class="flex items-center w-full">
-                        <i class="fa-solid fa-grip-vertical text-gray-500 mr-3 cursor-move"></i>
-                        <input type="text" value="Модуль ${blockCount}: Новая тема" class="font-bold text-white bg-transparent border-b border-gray-600 focus:border-cyan-500 focus:outline-none w-full block-title px-2 py-1 transition-colors">
-                    </div>
-                    <i onclick="this.closest('.block-item').remove()" class="fa-solid fa-trash text-gray-600 hover:text-red-400 cursor-pointer ml-4 transition-colors"></i>
-                </div>
-            `;
-            container.insertAdjacentHTML('beforeend', blockHtml);
-        };
-
-        // Обновленная функция публикации курса
-        window.publishCourse = async function() {
-            if (!currentUser) {
-                window.showToast('Ждите подключение к серверу...', 'error');
-                return;
-            }
-            const titleInput = document.getElementById('input-course-title').value;
-            const descInput = document.getElementById('input-course-desc').value;
-
-            // Собираем названия всех добавленных блоков
-            const blockElements = document.querySelectorAll('.block-title');
-            const blocks = Array.from(blockElements).map(el => el.value);
-
-            if (!titleInput.trim()) {
-                window.showToast('Введите название курса', 'error');
-                return;
-            }
-
-            try {
-                await addDoc(collection(db, 'courses'), {
-                    title: titleInput,
-                    description: descInput,
-                    blocks: blocks, // <-- Отправляем блоки в базу данных
-                    progress: Math.floor(Math.random() * 40) + 10,
-                    createdAt: serverTimestamp()
-                });
-                window.showToast('Курс успешно сохранен в облако!');
-                
-                // Очистка формы
-                document.getElementById('input-course-title').value = '';
-                document.getElementById('input-course-desc').value = '';
-                document.getElementById('blocks-container').innerHTML = ''; 
-                
-                setTimeout(() => { window.switchRole('student'); }, 1000);
-            } catch (error) {
-                console.error("Publish Error:", error);
-                window.showToast('Ошибка сохранения', 'error');
-            }
-        };
-
-        function renderCoursesUI() {
-            const container = document.getElementById('student-courses-container');
-            if (!container) return;
+        // Автоматическое обновление списка курсов для ученика
+        onSnapshot(collection(db, 'courses'), (snapshot) => {
+            const container = document.getElementById('student-courses');
             container.innerHTML = '';
-
-            if (globalCourses.length === 0) {
-                container.innerHTML = `
-                    <div class="glass-panel p-8 rounded-xl text-center col-span-full border-dashed border-2 border-gray-700">
-                        <i class="fa-solid fa-folder-open text-3xl text-gray-600 mb-4"></i>
-                        <p class="text-gray-400">В базе данных пока нет курсов.<br>Опубликуйте первый курс из кабинета Админа!</p>
-                    </div>`;
-                return;
-            }
-
-            // Рендер карточек
-            globalCourses.forEach(course => {
-                // Считаем блоки
-                const blocksCount = course.blocks ? course.blocks.length : 0;
-
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                // Добавлена безопасная проверка: если blocks нет, используем 0
+                const blocksCount = (data.blocks && Array.isArray(data.blocks)) ? data.blocks.length : 0;
+                
                 container.innerHTML += `
-                    <div class="glass-panel p-6 rounded-xl relative overflow-hidden group hover:border-cyan-500/50 transition-colors">
-                        <div class="absolute top-0 right-0 p-4">
-                            <span class="bg-gray-900 text-cyan-400 text-xs px-2 py-1 rounded border border-cyan-500/30 font-tech">Cloud</span>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2 text-white pr-16">${course.title}</h3>
-                        <p class="text-sm text-gray-400 mb-4 line-clamp-2">${course.description || ''}</p>
-                        
-                        <div class="mb-4 text-xs text-gray-400 font-tech">
-                            <i class="fa-solid fa-layer-group mr-1 text-cyan-500"></i> Модулей в курсе: <span class="text-white font-bold">${blocksCount}</span>
-                        </div>
-
-                        <div class="mb-6">
-                            <div class="flex justify-between text-sm mb-2">
-                                <span class="text-gray-300">Стадия прохождения</span>
-                                <span class="font-tech text-cyan-400">${course.progress || 0}%</span>
-                            </div>
-                            <div class="w-full bg-gray-800 rounded-full h-2">
-                                <div class="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full" style="width: ${course.progress || 0}%"></div>
-                            </div>
-                        </div>
-                        <button class="w-full bg-gray-800 hover:bg-cyan-500 hover:text-gray-900 text-white border border-gray-700 font-bold py-3 rounded-lg transition-all flex justify-center items-center gap-2">
-                            Продолжить обучение <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </div>`;
+                    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                        <h3 class="text-xl font-bold mb-2">${data.title || 'Без названия'}</h3>
+                        <p class="text-gray-400 mb-4">Модулей: ${blocksCount}</p>
+                        <button class="text-cyan-400 underline">Начать обучение</button>
+                    </div>
+                `;
             });
-        }
+        });
 
-        window.switchRole = function(role) {
-            const names = { 'admin': 'Администратор', 'student': 'Студент', 'watcher': 'Куратор' };
-            document.getElementById('user-name').innerText = names[role];
-            ['admin', 'student', 'watcher'].forEach(r => {
-                const btn = document.getElementById(`nav-${r}`);
-                if (btn) {
-                    if (r === role) { btn.classList.add('bg-gray-800', 'text-white', 'border-gray-600'); }
-                    else { btn.classList.remove('bg-gray-800', 'text-white', 'border-gray-600'); }
-                }
-            });
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.getElementById(`view-${role}`).classList.add('active');
+        window.addBlock = () => {
+            document.getElementById('blocks-container').insertAdjacentHTML('beforeend', `
+                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 block-item space-y-2">
+                    <input type="text" placeholder="Название темы" class="w-full bg-transparent border-b border-gray-600 outline-none text-white block-title">
+                    <input type="text" placeholder="Ссылка на YouTube" class="w-full bg-transparent border-b border-gray-600 outline-none text-cyan-300 block-video text-sm">
+                </div>
+            `);
         };
-        
-        // Запуск интерфейса
-        window.switchRole('admin');
+
+        window.publishCourse = async () => {
+            const blocks = Array.from(document.querySelectorAll('.block-item')).map(item => ({
+                title: item.querySelector('.block-title').value,
+                video: item.querySelector('.block-video').value
+            }));
+            
+            await addDoc(collection(db, 'courses'), {
+                title: document.getElementById('course-title').value,
+                blocks: blocks
+            });
+            alert('Курс опубликован в облаке!');
+        };
+
+        window.switchRole = (role) => {
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('view-' + role).classList.add('active');
+        };
     </script>
 </body>
 </html>
