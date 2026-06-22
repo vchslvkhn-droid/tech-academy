@@ -41,7 +41,6 @@
         body { font-family: 'Inter', sans-serif; background-color: #030712; color: #f3f4f6; }
         .font-tech { font-family: 'JetBrains Mono', monospace; }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #111827; }
         ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
@@ -61,7 +60,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Toast notification styles */
         .toast-visible {
             transform: translateY(0) !important;
             opacity: 1 !important;
@@ -276,56 +274,21 @@
 
     <!-- FIREBASE & APP LOGIC -->
     <script type="module">
-        // 1. Firebase Imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // 2. Global Variables for Database connection
-        let db, auth, currentUser, appId;
-        let globalCourses = []; // Array to store courses locally
-
-        // --- Custom Toast Notification Function ---
-        window.showToast = function(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toast-message');
-            const toastIcon = document.getElementById('toast-icon');
-
-            toastMessage.innerText = message;
-            
-            if (type === 'success') {
-                toastIcon.className = 'fa-solid fa-circle-check text-green-400 text-xl';
-                toast.classList.replace('border-red-700', 'border-gray-700');
-            } else if (type === 'error') {
-                toastIcon.className = 'fa-solid fa-circle-xmark text-red-500 text-xl';
-                toast.classList.replace('border-gray-700', 'border-red-700');
-            } else {
-                toastIcon.className = 'fa-solid fa-circle-info text-cyan-400 text-xl';
-            }
-
-            toast.classList.add('toast-visible');
-            setTimeout(() => {
-                toast.classList.remove('toast-visible');
-            }, 3000);
-        };
-
-        <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        // Ваши ключи
         const firebaseConfig = {
-        apiKey: "AIzaSyAHWDiuc9DGawTvbmCwmCg6JbKnwiOE53c",
-        authDomain: "teched-platform.firebaseapp.com",
-        projectId: "teched-platform",
-        storageBucket: "teched-platform.firebasestorage.app",
-        messagingSenderId: "687944573637",
-        appId: "1:687944573637:web:156ccd6354a658124c86ac",
-        measurementId: "G-0Y8EG64LH5"
+            apiKey: "AIzaSyAHWDiuc9DGawTvbmCwmCg6JbKnwiOE53c",
+            authDomain: "teched-platform.firebaseapp.com",
+            projectId: "teched-platform",
+            storageBucket: "teched-platform.firebasestorage.app",
+            messagingSenderId: "687944573637",
+            appId: "1:687944573637:web:156ccd6354a658124c86ac",
+            measurementId: "G-0Y8EG64LH5"
         };
 
-        // ВСЁ ЧТО ИДЕТ НИЖЕ — ДОЛЖНО ОСТАТЬСЯ! НЕ УДАЛЯЙТЕ ЭТО:
         let db, auth, currentUser;
         let globalCourses = []; 
 
@@ -349,6 +312,7 @@
             setTimeout(() => { toast.classList.remove('toast-visible'); }, 3000);
         };
 
+        // Подключение к Firebase
         signInAnonymously(auth).catch(err => {
             console.error(err);
             window.showToast('Ошибка авторизации. Проверьте вкладку Authentication в Firebase!', 'error');
@@ -357,7 +321,12 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
-                document.getElementById('user-role').innerText = 'online';
+                // Обновляем UI, показывая, что мы онлайн
+                const roleEl = document.getElementById('user-role');
+                roleEl.innerText = 'online';
+                roleEl.classList.remove('text-cyan-400');
+                roleEl.classList.add('text-green-400');
+                
                 setupDatabaseListeners();
             }
         });
@@ -397,6 +366,11 @@
                     createdAt: serverTimestamp()
                 });
                 window.showToast('Курс успешно сохранен в облако!');
+                
+                // Очистка полей
+                document.getElementById('input-course-title').value = '';
+                document.getElementById('input-course-desc').value = '';
+                
                 setTimeout(() => { window.switchRole('student'); }, 1000);
             } catch (error) {
                 console.error(error);
@@ -420,11 +394,11 @@
 
             globalCourses.forEach(course => {
                 container.innerHTML += `
-                    <div class="glass-panel p-6 rounded-xl relative overflow-hidden">
+                    <div class="glass-panel p-6 rounded-xl relative overflow-hidden group hover:border-cyan-500/50 transition-colors">
                         <div class="absolute top-0 right-0 p-4">
                             <span class="bg-gray-900 text-cyan-400 text-xs px-2 py-1 rounded border border-cyan-500/30 font-tech">Cloud</span>
                         </div>
-                        <h3 class="text-xl font-bold mb-2 text-white">${course.title}</h3>
+                        <h3 class="text-xl font-bold mb-2 text-white pr-16">${course.title}</h3>
                         <p class="text-sm text-gray-400 mb-6 line-clamp-2">${course.description || ''}</p>
                         <div class="mb-6">
                             <div class="flex justify-between text-sm mb-2">
@@ -455,6 +429,9 @@
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${role}`).classList.add('active');
         };
+        
+        // Запуск интерфейса
         window.switchRole('admin');
     </script>
-                
+</body>
+</html>
